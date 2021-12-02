@@ -1,30 +1,78 @@
 <?php
 
-# ----- Handle reading stdin first, fallback to input.txt file if it exists
+/**
+ * Input data should be provided in `input.txt`.
+ * Example data rows for testing should be in `example-input.txt`.
+ * Tests will look for matching answers in `example-input-answers.txt` (one per line).
+ * Input data can also be provided from stdin.
+ *
+ * Example CLI usage:
+ * ```sh
+ *  # Read from STDIN
+ *  $ cat example-input.txt | php -f Day-02-Solution-PHP.php
+ *
+ *  # Read from default `input.txt`
+ *  $ php -f Day-02-Solution-PHP.php
+ *
+ *  # Run tests on example data
+ *  $ php -f Day-02-Solution-PHP.php test
+ * ```
+ */
 
-$input = array();
+class ReadInputFile
+{
+    public $input = array();
 
-$stdin = fopen('php://stdin', 'r');
+    public function FromSTDIN($fallbackFromFile = true)
+    {
+        $stdin = fopen('php://stdin', 'r');
 
-if (is_resource($stdin)) {
-    stream_set_blocking($stdin, 0);
+        if (is_resource($stdin)) {
+            stream_set_blocking($stdin, 0);
 
-    while (($f = fgets($stdin)) !== false) {
-        $input[] = trim($f);
+            while (($f = fgets($stdin)) !== false) {
+                $this->input[] = trim($f);
+            }
+
+            fclose($stdin);
+        }
+
+        if (empty($this->input)) {
+            if ($fallbackFromFile) {
+                $this->FromFile('input.txt');
+            }
+        }
+
+        return $this;
     }
 
-    fclose($stdin);
-}
+    public function FromFile($filename = 'input.txt')
+    {
+        if (file_exists($filename)) {
+            $this->input = array_filter(array_map('trim', explode("\n", file_get_contents($filename))));
+        }
 
-// Fallback to reading file
-if (empty($input)) {
-    if (file_exists('input.txt')) {
-        $input = array_filter(array_map('trim', explode("\n", file_get_contents('input.txt'))));
+        return $this;
+    }
+
+    public function getInputArray()
+    {
+        return $this->input;
     }
 }
 
-if (empty($input)) {
-    die("No input was provided.\n");
+$testMode = false;
+
+if (isset($argv) && !empty($argv[1])) {
+    if ($argv[1] == "test") {
+        $testMode = true;
+    }
+}
+
+if ($testMode) {
+    $input = (new ReadInputFile)->FromFile('example-input.txt')->getInputArray();
+} else {
+    $input = (new ReadInputFile)->FromSTDIN(true)->getInputArray();
 }
 
 # ----- BEGIN Puzzle
@@ -55,9 +103,26 @@ foreach ($input as $line) {
     }
 }
 
-$final_part1 = $x * $p1_y;
-$final_part2 = $x * $p2_y;
+// Declare our answers
+$answers = array(
+    ($x * $p1_y),
+    ($x * $p2_y)
+);
 
+print "Raw values (not required for solution):";
+print "\tHorizontal = ${x}\tDepth1 = ${p1_y}\tDepth2 = ${p2_y}\tAim = ${aim}\n";
+print "\n\n";
 print "Values of final horizontal position multiplied by final depth:\n";
-print "Part One = ${final_part1}\n";
-print "Part Two = ${final_part2}\n";
+print "Part One = ${answers[0]}\n";
+print "Part Two = ${answers[1]}\n";
+
+
+if ($testMode) {
+    $testAnswers = array_map('intval', (new ReadInputFile)->FromFile('example-input-answers.txt')->getInputArray());
+
+    print "\n\nTESTS\n=====\n";
+
+    for ($i = 0; $i < 2; $i++) {
+        print "\tPart " . ($i + 1) . ": " . ($answers[$i] === $testAnswers[$i] ? "PASSED" : "failed! Expected Value: ${testAnswers[$i]}") . "\n";
+    }
+}
