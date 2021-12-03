@@ -185,17 +185,17 @@ $bin                  = input_to_bin_kv($input);
 $vertical_binary      = verticalBin($bin);
 $bitcount_by_position = bitcountByPosition($vertical_binary);
 
-$gamma_binary      = gamma($bitcount_by_position);
-$gamma_decimal     = strval(bindec($gamma_binary));
-$epsilon_binary    = epsilon($bitcount_by_position);
-$epsilon_decimal   = strval(bindec($epsilon_binary));
-$power_consumption = strval($gamma_decimal * $epsilon_decimal);
+$positions            = count($vertical_binary);
+$rows                 = count($bin);
 
-$positions = count($vertical_binary);
-$rows      = count($bin);
+$gamma_binary         = gamma($bitcount_by_position);
+$gamma_decimal        = strval(bindec($gamma_binary));
+$epsilon_binary       = epsilon($bitcount_by_position);
+$epsilon_decimal      = strval(bindec($epsilon_binary));
+$power_consumption    = strval($gamma_decimal * $epsilon_decimal);
 
-$most_popular_bit_by_position  = array_map_intval_str_split($gamma_binary);
-$least_popular_bit_by_position = array_map_intval_str_split($epsilon_binary);
+$most_popular_bit_by_position    = array_map_intval_str_split($gamma_binary);
+$least_popular_bit_by_position   = array_map_intval_str_split($epsilon_binary);
 
 $oxygen_generator_rating_binary  = getRating($input, $positions, 'gamma');
 $oxygen_generator_rating_decimal = strval(bindec($oxygen_generator_rating_binary));
@@ -203,7 +203,7 @@ $oxygen_generator_rating_decimal = strval(bindec($oxygen_generator_rating_binary
 $co2_scrubber_rating_binary      = getRating($input, $positions, 'epsilon');
 $co2_scrubber_rating_decimal     = strval(bindec($co2_scrubber_rating_binary));
 
-$life_support_rating = strval($oxygen_generator_rating_decimal * $co2_scrubber_rating_decimal);
+$life_support_rating             = strval($oxygen_generator_rating_decimal * $co2_scrubber_rating_decimal);
 
 // Declare our answers
 $answers = array(
@@ -219,7 +219,7 @@ $answers = array(
     $life_support_rating
 );
 
-print "Raw values (not required for solution):";
+print "Raw values (not required for solution):\n";
 print "\tGamma Rate = ${answers[0]} (binary) ${answers[1]} (decimal)\n";
 print "\tEpsilon Rate = ${answers[2]} (binary) ${answers[3]} (decimal)\n";
 print "\tOxygen Generator Rating = ${answers[5]} (binary) ${answers[6]} (decimal)\n";
