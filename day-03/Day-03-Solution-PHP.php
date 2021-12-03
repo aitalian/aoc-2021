@@ -77,22 +77,75 @@ if ($testMode) {
 
 # ----- BEGIN Puzzle
 
+# NOTE: Treating ALL values as strings for simplicity (and because I'm tired)
+
+$bin        = array();  // array holding binary value digits split into kv pairs
+$newbin     = array();  // temp array to hold newly organized values for each digit's place
+$bitbynum   = array();  // array holding bits arranged by number
+
+function gamma($bitbynumArr) {
+    // most common bit
+    $b = '';
+
+    foreach ($bitbynumArr as $k => $v) {
+        $b .= ($v[0] >= $v[1]) ? 0 : 1;
+    }
+
+    return strval($b);
+}
+
+function epsilon($bitbynumArr) {
+    // least common bit
+    $b = '';
+
+    foreach ($bitbynumArr as $k => $v) {
+        $b .= ($v[0] < $v[1]) ? 0 : 1;
+    }
+
+    return strval($b);
+}
+
+foreach ($input as $k => $v) {
+    $bin[$k] = array_map('strval', str_split($v));
+}
+
+foreach ($bin as $k => $v) {
+    foreach ($v as $nk => $nv) {
+        $newbin[$nk] .= $nv;
+    }
+}
+
+foreach ($newbin as $k => $v) {
+    $bitbynum[$k] = array_count_values(array_map('intval', str_split((string) $v)));
+}
+
+$gamma_binary      = gamma($bitbynum);
+$gamma_decimal     = strval(bindec($gamma_binary));
+$epsilon_binary    = epsilon($bitbynum);
+$epsilon_decimal   = strval(bindec($epsilon_binary));
+$power_consumption = strval($gamma_decimal * $epsilon_decimal);
+
 // Declare our answers
 $answers = array(
-    null,
-    null
+    $gamma_binary,
+    $gamma_decimal,
+    $epsilon_binary,
+    $epsilon_decimal,
+    $power_consumption
 );
 
-print "Part One = ${answers[0]}\n";
-print "Part Two = ${answers[1]}\n";
-
+print "Raw values (not required for solution):";
+print "\tGamma Rate = ${answers[0]} (binary) ${answers[1]} (decimal)\n";
+print "\tEpsilon Rate = ${answers[2]} (binary) ${answers[3]} (decimal)\n";
+print "\n\n";
+print "Solution: Power consumption of the submarine = ${answers[4]}\n";
 
 if ($testMode) {
-    $testAnswers = array_map('intval', (new ReadInputFile)->FromFile('example-input-answers.txt')->getInputArray());
+    $testAnswers = array_map('strval', (new ReadInputFile)->FromFile('example-input-answers.txt')->getInputArray());
 
     print "\n\nTESTS\n=====\n";
 
-    for ($i = 0; $i < 2; $i++) {
-        print "\tPart " . ($i + 1) . ": " . ($answers[$i] === $testAnswers[$i] ? "PASSED" : "failed! Expected Value: ${testAnswers[$i]}") . "\n";
+    for ($i = 0; $i < 5; $i++) {
+        print "\tAnswer " . ($i + 1) . ": " . ($answers[$i] === $testAnswers[$i] ? "PASSED" : "failed! Expected Value: ${testAnswers[$i]}") . "\n";
     }
 }
